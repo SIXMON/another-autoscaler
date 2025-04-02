@@ -1,6 +1,8 @@
 import os
+from zoneinfo import ZoneInfo
+
 from croniter import croniter
-from datetime import date, datetime, timezone, timedelta
+from datetime import date, datetime, timezone, timedelta, tzinfo
 from dateutil import parser
 from logs import Logs
 from k8s import K8s
@@ -105,8 +107,12 @@ class AAutoscaler:
                     self.k8s.rolloutDeployment(namespace, deployName)
 
     def execute(self):
-        # Current time in UTC format
-        currentTime = datetime.now(tz=timezone.utc)
+        # get timezone from environment variable TZ or default to UTC
+        current_timezone = os.getenv('TZ', 'UTC')
+
+        currentTime = datetime.now(tz=ZoneInfo(current_timezone))
+
+        self.logs.info({'message': 'Current time.', 'currentTime': str(currentTime)})
 
         # For each namespace
         self.logs.info({'message': 'Getting list of namespaces.'})

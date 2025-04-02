@@ -1,10 +1,13 @@
 import os
 import json
 from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
+
 
 class Logs:
 
     def __init__(self, objectName:str):
+
         self.level = 'INFO'
         if "LOG_LEVEL" in os.environ:
             self.level = os.environ["LOG_LEVEL"]
@@ -16,8 +19,11 @@ class Logs:
         self.objectName = objectName
 
     def __print__(self, level:str, extraFields:dict):
+        current_timezone_str = os.getenv('TZ', 'UTC')
+        current_timezone = ZoneInfo(current_timezone_str)
+
         fields = {
-            'date': datetime.now(tz=timezone.utc).strftime("%Y-%m-%d %H:%M:%S"),
+            'date': datetime.now(tz=current_timezone).strftime("%Y-%m-%d %H:%M:%S"),
             'level': level,
             'objectName': self.objectName
         }
